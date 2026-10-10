@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post 4: Clean Architecture y Fallback en Hardware POS | Alejandro Barragán Jasso</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-amber-500 selection:text-black">
+
+  <!-- Navbar -->
+  <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <a href="https://github.com/Alejano/clean-architecture-pos-fallback" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+          <i data-lucide="arrow-left" class="w-5 h-5"></i>
+          <span class="text-sm font-semibold">Volver al Hub</span>
+        </a>
+      </div>
+      <div class="flex items-center space-x-2 text-xs font-mono">
+        <span class="px-2.5 py-1 rounded-full bg-amber-950 border border-amber-800 text-amber-400">TEMA 04 / 05</span>
+        <span class="text-slate-500 hidden sm:inline">Semana 2 · Jueves</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Title Section -->
+  <main class="max-w-5xl mx-auto px-4 py-12 flex-1 w-full">
+    <div class="mb-10 text-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-950/60 border border-amber-800/50 text-amber-400 text-xs font-semibold mb-4">
+        <i data-lucide="git-merge" class="w-3.5 h-3.5"></i>
+        Clean Architecture & State Machine
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
+        De Código Espagueti a Clean Architecture en Lectura de Tarjetas
+      </h1>
+      <p class="text-slate-400 text-lg max-w-3xl mx-auto">
+        Casos de uso atómicos, corrutinas sin memory leaks y una máquina de estados finita determinista para contingencia por chip dañado.
+      </p>
+    </div>
+
+    <!-- LinkedIn Copy Box -->
+    <div class="glass-panel rounded-2xl p-6 border-amber-500/30 mb-12 shadow-xl shadow-amber-950/20">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <i data-lucide="linkedin" class="w-5 h-5 text-amber-400"></i>
+          <h2 class="text-base font-bold text-white">Texto Listo para Publicar en LinkedIn</h2>
+        </div>
+        <button onclick="copyToClipboard('post-copy-text', '¡Texto copiado!')" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-md">
+          <i data-lucide="copy" class="w-4 h-4"></i>
+          <span>Copiar Post para LinkedIn</span>
+        </button>
+      </div>
+      <pre id="post-copy-text" class="text-xs sm:text-sm text-slate-200 whitespace-pre-wrap font-sans bg-slate-900/90 p-4 rounded-xl border border-slate-800 leading-relaxed">🏗️ Refactorización extrema en sistemas transaccionales: Casos de uso, corrutinas limpias y fallback resiliente
+
+Interactuar con hardware físico de cobro (sensores de chip, cabezales magnéticos, impresoras) en una app móvil es uno de los terrenos más propensos a memory leaks y estados inconsistentes si no se aplica una arquitectura limpia.
+
+En este carrusel comparto los principios que aplicamos para migrar una librería transaccional hacia Kotlin moderno:
+• Eliminación de fugas de corrutinas en llamadas a hardware.
+• Máquina de estados determinista para contingencia por chip dañado (Fallback a banda).
+• Desacoplamiento total de pantallas secundarias orientadas al cliente.
+
+Desliza para ver el antes y después arquitectónico. 👇
+
+#CleanArchitecture #Kotlin #Coroutines #StatePattern #AndroidDev #Refactoring</pre>
+
+      <div class="mt-4 pt-4 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div class="text-slate-400">
+          <span class="font-semibold text-slate-300">Pregunta de Debate:</span> "¿Al manejar fallos mecánicos o de hardware en apps móviles, prefieres máquinas de estado finitas o programación reactiva pura?"
+        </div>
+        <button onclick="copyToClipboard('debate-comment-text', '¡Pregunta copiada!')" class="text-amber-400 hover:text-amber-300 font-semibold inline-flex items-center gap-1.5 self-start sm:self-auto">
+          <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+          <span>Copiar Debate</span>
+        </button>
+      </div>
+      <p id="debate-comment-text" class="hidden">Al manejar fallos mecánicos o de hardware en apps móviles, ¿prefieres máquinas de estado finitas o programación reactiva pura? Comparte tus mejores prácticas en los comentarios.</p>
+    </div>
+
+    <!-- Slides Viewer -->
+    <div class="mb-14">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="presentation" class="w-5 h-5 text-amber-400"></i>
+          <h2 class="text-xl font-bold text-white">Carrusel Técnico Interactivo (7 Slides)</h2>
+        </div>
+        <div class="text-xs font-mono text-slate-400" id="slide-indicator">Slide 1 de 7</div>
+      </div>
+
+      <div class="relative bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden min-h-[420px] flex items-center justify-center p-6 sm:p-10 shadow-2xl">
+        <!-- Slide 1 -->
+        <div class="slide-item active flex-col items-center text-center max-w-2xl" data-slide="1">
+          <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mb-6">
+            <i data-lucide="layers" class="w-8 h-8"></i>
+          </div>
+          <span class="px-3 py-1 rounded-full bg-amber-950 text-amber-400 text-xs font-semibold mb-4 border border-amber-800">Slide 1 · Portada</span>
+          <h3 class="text-2xl sm:text-3xl font-extrabold text-white mb-3">Refactorizando Hardware en Android</h3>
+          <p class="text-slate-300 text-base leading-relaxed">
+            Clean Architecture, Corrutinas sin Leaks y Máquinas de Estado para flujos de cobro de alta resiliencia.
+          </p>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide-item flex-col items-center text-left max-w-2xl" data-slide="2">
+          <span class="px-3 py-1 rounded-full bg-red-950 text-red-400 text-xs font-semibold mb-4 border border-red-800 self-center">Slide 2 · El Problema</span>
+          <h3 class="text-2xl font-bold text-white mb-4 text-center">Síntomas del Código Heredado</h3>
+          <ul class="space-y-3 text-slate-300 text-sm">
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400 shrink-0 mt-0.5"></i>
+              <span>Llamadas a hardware con <code class="text-amber-300">CoroutineScope(Dispatchers.IO)</code> sin ciclo de vida (llamadas huérfanas al cambiar de pantalla).</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="x-circle" class="w-5 h-5 text-red-400 shrink-0 mt-0.5"></i>
+              <span>Lógica transaccional acoplada directamente dentro de actividades y fragmentos.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="slash" class="w-5 h-5 text-slate-400 shrink-0 mt-0.5"></i>
+              <span>Excepciones catastróficas y puertos bloqueados si el usuario extraía la tarjeta antes de recibir el criptograma.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide-item flex-col items-center text-left max-w-2xl w-full" data-slide="3">
+          <span class="px-3 py-1 rounded-full bg-amber-950 text-amber-400 text-xs font-semibold mb-4 border border-amber-800 self-center">Slide 3 · Capas Clean</span>
+          <h3 class="text-xl font-bold text-white mb-4 text-center">Desacoplamiento Estricto</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full text-center">
+            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+              <h4 class="text-amber-400 font-bold text-xs uppercase mb-1">Dominio</h4>
+              <p class="text-xs text-slate-300">ProcessSaleUseCase puro, libre de imports de Android.</p>
+            </div>
+            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+              <h4 class="text-cyan-400 font-bold text-xs uppercase mb-1">Datos</h4>
+              <p class="text-xs text-slate-300">Repositorios que orquestan el chip, la red y la bóveda.</p>
+            </div>
+            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800">
+              <h4 class="text-emerald-400 font-bold text-xs uppercase mb-1">Presentación</h4>
+              <p class="text-xs text-slate-300">StateMachines que sólo emiten estados inmutables a la UI.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide-item flex-col items-center text-left max-w-2xl" data-slide="4">
+          <span class="px-3 py-1 rounded-full bg-cyan-950 text-cyan-400 text-xs font-semibold mb-4 border border-cyan-800 self-center">Slide 4 · Máquina de Estados</span>
+          <h3 class="text-2xl font-bold text-white mb-4 text-center">Contingencia Determinista (Fallback)</h3>
+          <p class="text-sm text-slate-300 leading-relaxed mb-3">
+            La normativa prohíbe deslizar por banda magnética una tarjeta con chip. Solo tras <strong>3 fallos consecutivos de chip</strong>, la máquina conmuta legalmente a <code class="text-amber-400">FALLBACK_MAGSTRIPE</code>.
+          </p>
+          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs font-mono text-cyan-300 text-center">
+            Espera → Intento 1 (Fallo) → Intento 2 (Fallo) → Intento 3 (Fallo) → MODO BANDA
+          </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide-item flex-col items-center text-left max-w-2xl" data-slide="5">
+          <span class="px-3 py-1 rounded-full bg-violet-950 text-violet-400 text-xs font-semibold mb-4 border border-violet-800 self-center">Slide 5 · Pantalla Dual</span>
+          <h3 class="text-2xl font-bold text-white mb-4 text-center">Sincronización Dual Screen</h3>
+          <p class="text-sm text-slate-300 leading-relaxed mb-4">
+            En terminales con pantalla orientada al cliente (Customer Facing Display), la pantalla secundaria NO ejecuta lógica de pagos.
+          </p>
+          <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-300 font-mono">
+            ✔ Bus de eventos reactivo unidireccional.<br>
+            ✔ Proyección visual inmediata según el estado de la máquina.<br>
+            ✔ Cero retención de hilos de hardware en la segunda pantalla.
+          </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide-item flex-col items-center text-left max-w-2xl" data-slide="6">
+          <span class="px-3 py-1 rounded-full bg-emerald-950 text-emerald-400 text-xs font-semibold mb-4 border border-emerald-800 self-center">Slide 6 · Métricas de Impacto</span>
+          <h3 class="text-2xl font-bold text-white mb-4 text-center">Resultados de Calidad de Software</h3>
+          <ul class="space-y-2.5 text-xs text-slate-300">
+            <li class="flex items-center gap-2">
+              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+              <span><strong>0 fugas de memoria</strong> en pruebas de estrés con extracción forzada de tarjeta.</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+              <span><strong>&gt;70% cobertura de pruebas unitarias</strong> en lógica de negocio con JaCoCo.</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+              <span>Integración con terceros mediante contratos e interfaces puras.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide-item flex-col items-center text-center max-w-2xl" data-slide="7">
+          <span class="px-3 py-1 rounded-full bg-indigo-950 text-indigo-400 text-xs font-semibold mb-4 border border-indigo-800">Slide 7 · Cierre & Debate</span>
+          <h3 class="text-2xl font-bold text-white mb-3">¿State Machines o Reactividad Pura?</h3>
+          <p class="text-slate-300 text-sm leading-relaxed mb-6">
+            Al interactuar con sensores mecánicos y hardware físico en Android, ¿cuál patrón te ha dado mejor estabilidad?
+          </p>
+          <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 text-xs text-amber-400 font-semibold">
+            💬 Déjame tu punto de vista en los comentarios y guarda este post.
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="flex items-center justify-between mt-4">
+        <button onclick="prevSlide()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold transition-all flex items-center gap-1.5 border border-slate-700">
+          <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          <span>Anterior</span>
+        </button>
+        <div class="flex gap-1.5" id="dots-container"></div>
+        <button onclick="nextSlide()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all flex items-center gap-1.5">
+          <span>Siguiente</span>
+          <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Interactive Simulator: Payment State Machine -->
+    <div class="glass-panel rounded-2xl p-6 sm:p-8 border border-slate-800 mb-14">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center">
+          <i data-lucide="terminal" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-white">Simulador en Vivo: Máquina de Estados & Fallback</h2>
+          <p class="text-xs text-slate-400">Interacciona con la máquina de estados y observa el disparo del modo de contingencia.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-3">
+          <div class="flex flex-wrap gap-2">
+            <button onclick="smStart()" id="btn-sm-start" class="px-3 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs">
+              1. Iniciar Venta ($850 MXN)
+            </button>
+            <button onclick="smInsertChip()" id="btn-sm-chip" disabled class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs disabled:opacity-40">
+              2. Insertar Chip
+            </button>
+            <button onclick="smFailChip()" id="btn-sm-fail" disabled class="px-3 py-2 rounded-lg bg-red-600/60 hover:bg-red-500 text-white font-semibold text-xs disabled:opacity-40">
+              3. Simular Error Chip
+            </button>
+            <button onclick="smSwipe()" id="btn-sm-swipe" disabled class="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs disabled:opacity-40">
+              4. Deslizar Banda
+            </button>
+            <button onclick="smReset()" class="px-3 py-2 rounded-lg bg-slate-800 text-slate-400 hover:text-white text-xs">
+              Resetear
+            </button>
+          </div>
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs font-mono">
+            <p class="text-slate-400 mb-1">Intentos Fallidos de Chip:</p>
+            <div class="flex gap-2">
+              <span id="fail-dot-1" class="w-3 h-3 rounded-full bg-slate-700"></span>
+              <span id="fail-dot-2" class="w-3 h-3 rounded-full bg-slate-700"></span>
+              <span id="fail-dot-3" class="w-3 h-3 rounded-full bg-slate-700"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 rounded-xl p-4 border border-slate-800 font-mono text-xs flex flex-col justify-between">
+          <div class="space-y-2">
+            <div class="text-slate-400 flex justify-between items-center pb-2 border-b border-slate-800">
+              <span>ESTADO ACTUAL</span>
+              <span id="sm-current-state" class="text-slate-400 font-bold">IDLE</span>
+            </div>
+            <div id="sm-log" class="text-slate-300 space-y-1 text-xs max-h-40 overflow-y-auto">
+              Presiona 'Iniciar Venta' para comenzar.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Architecture Diagram -->
+    <div class="glass-panel rounded-2xl p-6 sm:p-8 border border-slate-800 mb-14">
+      <h2 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
+        <i data-lucide="git-commit" class="w-5 h-5 text-amber-400"></i>
+        Diagrama de Estados de Contingencia
+      </h2>
+      <div class="mermaid flex justify-center py-4 bg-slate-900/50 rounded-xl">
+stateDiagram-v2
+    [*] --> EsperaTarjeta
+    EsperaTarjeta --> LecturaChip: Tarjeta insertada
+    LecturaChip --> TransaccionAprobada: Éxito EMV
+    LecturaChip --> ReintentoChip: Error de lectura (1 o 2)
+    ReintentoChip --> EsperaTarjeta: Limpiar puerto
+    LecturaChip --> ModoFallback: Error de lectura (3er intento)
+    ModoFallback --> LecturaBanda: "Deslice su tarjeta"
+    LecturaBanda --> TransaccionAprobada: Track 2 procesado
+      </div>
+    </div>
+
+    <!-- Source Code Reference -->
+    <div class="glass-panel rounded-2xl p-6 sm:p-8 border border-slate-800 mb-14">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-xl font-bold text-white">Código de Referencia</h2>
+          <p class="text-xs text-slate-400 font-mono">examples/04_clean_architecture_fallback/</p>
+        </div>
+        <a href="https://github.com/alejano" target="_blank" class="text-xs text-amber-400 hover:underline flex items-center gap-1 font-semibold">
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          Ver en GitHub
+        </a>
+      </div>
+      <div class="p-4 bg-slate-900 rounded-xl border border-slate-800 text-xs font-mono text-slate-300">
+        <p class="text-slate-500 mb-2"># Ejecuta la simulación de la máquina de estados en Python:</p>
+        <code class="text-amber-400">python examples/04_clean_architecture_fallback/payment_state_machine.py</code>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast" class="bg-amber-500 text-slate-950 font-bold px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 text-sm">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span id="toast-text">Acción exitosa</span>
+  </div>
+
+  <footer class="border-t border-slate-800 py-8 text-center text-xs text-slate-500">
+    <p>© 2026 Alejandro Barragán Jasso · Clean Architecture & POS Engineering</p>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    let currentSlide = 1;
+    const totalSlides = 7;
+
+    function renderDots() {
+      const dotsContainer = document.getElementById('dots-container');
+      dotsContainer.innerHTML = '';
+      for (let i = 1; i <= totalSlides; i++) {
+        const dot = document.createElement('button');
+        dot.className = `w-2.5 h-2.5 rounded-full transition-all ${i === currentSlide ? 'bg-amber-400 w-6' : 'bg-slate-700'}`;
+        dot.onclick = () => goToSlide(i);
+        dotsContainer.appendChild(dot);
+      }
+    }
+
+    function updateSlide() {
+      document.querySelectorAll('.slide-item').forEach(el => {
+        el.classList.remove('active');
+        if (parseInt(el.getAttribute('data-slide')) === currentSlide) {
+          el.classList.add('active');
+        }
+      });
+      document.getElementById('slide-indicator').innerText = `Slide ${currentSlide} de ${totalSlides}`;
+      renderDots();
+    }
+
+    function nextSlide() { currentSlide = currentSlide < totalSlides ? currentSlide + 1 : 1; updateSlide(); }
+    function prevSlide() { currentSlide = currentSlide > 1 ? currentSlide - 1 : totalSlides; updateSlide(); }
+    function goToSlide(n) { currentSlide = n; updateSlide(); }
+    renderDots();
+
+    function copyToClipboard(elementId, toastMessage) {
+      const text = document.getElementById(elementId).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById('toast');
+        document.getElementById('toast-text').innerText = toastMessage;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+      });
+    }
+
+    // State Machine Interactive Simulation
+    let smState = "IDLE";
+    let chipFails = 0;
+
+    function updateSmUI() {
+      const stateBadge = document.getElementById('sm-current-state');
+      stateBadge.innerText = smState;
+
+      if (smState === "IDLE") stateBadge.className = "text-slate-400 font-bold";
+      else if (smState === "WAITING_FOR_CARD") stateBadge.className = "text-cyan-400 font-bold";
+      else if (smState === "READING_CHIP") stateBadge.className = "text-indigo-400 font-bold";
+      else if (smState === "FALLBACK_MAGSTRIPE") stateBadge.className = "text-amber-400 font-bold";
+      else if (smState === "SUCCESS") stateBadge.className = "text-emerald-400 font-bold";
+
+      document.getElementById('fail-dot-1').className = `w-3 h-3 rounded-full ${chipFails >= 1 ? 'bg-red-500' : 'bg-slate-700'}`;
+      document.getElementById('fail-dot-2').className = `w-3 h-3 rounded-full ${chipFails >= 2 ? 'bg-red-500' : 'bg-slate-700'}`;
+      document.getElementById('fail-dot-3').className = `w-3 h-3 rounded-full ${chipFails >= 3 ? 'bg-red-500' : 'bg-slate-700'}`;
+    }
+
+    function smLog(msg) {
+      const log = document.getElementById('sm-log');
+      log.innerHTML += `<div>↳ ${msg}</div>`;
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function smStart() {
+      smState = "WAITING_FOR_CARD";
+      chipFails = 0;
+      document.getElementById('btn-sm-chip').disabled = false;
+      document.getElementById('btn-sm-fail').disabled = true;
+      document.getElementById('btn-sm-swipe').disabled = true;
+      updateSmUI();
+      smLog("Esperando inserción de tarjeta ($850.00 MXN)...");
+    }
+
+    function smInsertChip() {
+      smState = "READING_CHIP";
+      document.getElementById('btn-sm-chip').disabled = true;
+      document.getElementById('btn-sm-fail').disabled = false;
+      updateSmUI();
+      smLog(`Tarjeta con chip insertada. Intento #${chipFails + 1}`);
+    }
+
+    function smFailChip() {
+      chipFails++;
+      if (chipFails >= 3) {
+        smState = "FALLBACK_MAGSTRIPE";
+        document.getElementById('btn-sm-fail').disabled = true;
+        document.getElementById('btn-sm-swipe').disabled = false;
+        smLog("<span class='text-amber-400 font-bold'>⚠ 3 Fallos consecutivos. Activando CONTINGENCIA: Deslice banda magnética.</span>");
+      } else {
+        smState = "WAITING_FOR_CARD";
+        document.getElementById('btn-sm-fail').disabled = true;
+        document.getElementById('btn-sm-chip').disabled = false;
+        smLog(`Error en chip (Intento ${chipFails}/3). Reinsertar tarjeta.`);
+      }
+      updateSmUI();
+    }
+
+    function smSwipe() {
+      smState = "SUCCESS";
+      document.getElementById('btn-sm-swipe').disabled = true;
+      updateSmUI();
+      smLog("<span class='text-emerald-400 font-bold'>✔ Banda leída correctamente en modo contingencia. ¡Transacción APROBADA!</span>");
+    }
+
+    function smReset() {
+      smState = "IDLE";
+      chipFails = 0;
+      document.getElementById('btn-sm-chip').disabled = true;
+      document.getElementById('btn-sm-fail').disabled = true;
+      document.getElementById('btn-sm-swipe').disabled = true;
+      document.getElementById('sm-log').innerHTML = "Máquina reiniciada.";
+      updateSmUI();
+    }
+  </script>
+</body>
+</html>
